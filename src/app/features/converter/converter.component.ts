@@ -9,12 +9,13 @@ import { debounceTime, tap } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NUMBERS_WITH_DECIMAL_POINT } from '../../core/helpers/regexp-patterns';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-converter',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DecimalPipe],
   templateUrl: './converter.component.html',
-  styleUrl: './converter.component.scss',
+  providers: [DecimalPipe],
 })
 export class ConverterComponent implements OnInit {
   public form = new FormGroup({
@@ -45,14 +46,32 @@ export class ConverterComponent implements OnInit {
             const to = value.to?.trim() || '';
             const amount: number = value.amount as number;
 
-            if (amount === 0) {
-              return;
-            }
-
-            this.store.dispatch(converterActions.convertCurrency({ from, to, amount }));
+            this.convertCurrency(from, to, amount);
           }
         }),
       )
       .subscribe();
+  }
+
+  public retryCurrencyListFetch(): void {
+    this.store.dispatch(converterActions.fetchCurrencyList());
+  }
+
+  public retryConvert(): void {
+    if (this.form.valid) {
+      const from = (this.form.controls.from.value as string).trim();
+      const to = (this.form.controls.to.value as string).trim();
+      const amount = this.form.controls.amount.value as number;
+
+      this.convertCurrency(from, to, amount);
+    }
+  }
+
+  private convertCurrency(from: string, to: string, amount: number): void {
+    const precision = this.currencyListData().list.find((x) => x.shortCode === to)?.precision || 2;
+
+    if (amount === 0) return;
+
+    this.store.dispatch(converterActions.convertCurrency({ from, to, amount, precision }));
   }
 }

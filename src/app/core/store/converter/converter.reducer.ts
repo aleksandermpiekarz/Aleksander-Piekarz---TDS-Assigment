@@ -13,6 +13,7 @@ interface CurrencyListData {
 }
 interface LastConversionData extends ConversionResult {
   loading: boolean;
+  precision: number;
   error: HttpErrorResponse | null;
 }
 
@@ -32,6 +33,7 @@ const INITIAL_STATE: ConverterState = {
     to: '',
     amount: 0,
     value: 0,
+    precision: 0,
     loading: false,
     error: null,
   },
@@ -69,9 +71,16 @@ export const converterReducer = createReducer(
   ),
   on(
     converterActions.saveLastConvert,
-    (state, { result }): ConverterState => ({
+    (state, { result, precision }): ConverterState => ({
       ...state,
-      lastConversionData: { ...state.lastConversionData, ...result },
+      lastConversionData: { ...state.lastConversionData, ...result, precision },
+    }),
+  ),
+  on(
+    converterActions.convertCurrencyFailed,
+    (state, { error }): ConverterState => ({
+      ...state,
+      lastConversionData: { ...state.lastConversionData, error },
     }),
   ),
 );

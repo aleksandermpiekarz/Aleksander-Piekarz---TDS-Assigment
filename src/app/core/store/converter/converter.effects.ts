@@ -33,10 +33,14 @@ export class ConverterEffects {
   convertCurrency$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(converterActions.convertCurrency),
-      switchMap(({ from, to, amount }) => this.currencyBeaconHttpService.convert(from, to, amount)),
+      switchMap(({ from, to, amount, precision }) =>
+        this.currencyBeaconHttpService
+          .convert(from, to, amount)
+          .pipe(map((result) => ({ result, precision }))),
+      ),
       mapResponse({
-        next: (result) => converterActions.saveLastConvert({ result }),
-        error: (error: HttpErrorResponse) => converterActions.fetchCurrencyFailed({ error }),
+        next: ({ result, precision }) => converterActions.saveLastConvert({ result, precision }),
+        error: (error: HttpErrorResponse) => converterActions.convertCurrencyFailed({ error }),
       }),
     );
   });
@@ -54,6 +58,7 @@ export class ConverterEffects {
       map(() => converterActions.changeCurrencyListLoadingState({ loading: false })),
     );
   });
+
   startConvertLoading = createEffect(() => {
     return this.actions$.pipe(
       ofType(converterActions.convertCurrency),

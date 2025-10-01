@@ -11,8 +11,8 @@ export const converterActions = createActionGroup({
     'Save currency list': props<{ list: Currency[] }>(),
     'Change currency list loading state': props<{ loading: boolean }>(),
     'Change converter loading state': props<{ loading: boolean }>(),
-    'Convert currency': props<{ from: string; to: string; amount: number }>(),
+    'Convert currency': props<{ from: string; to: string; amount: number; precision: number }>(),
     'Convert currency Failed': props<{ error: HttpErrorResponse }>(),
-    'Save last convert': props<{ result: ConversionResult }>(),
+    'Save last convert': props<{ result: ConversionResult; precision: number }>(),
   },
 });

@@ -1,57 +1,154 @@
 @if ({currencyListData: currencyListData(), lastConversionData: lastConversionData()}; as vm) {
-  @if (vm.currencyListData.loading) {
-    <div>Loading...</div>
-  } @else if (!vm.currencyListData.error) {
-    <div class="converter">
-      <form [formGroup]="form" novalidate>
-        <div>
-          <label for="from">From</label>
-          <select id="from" formControlName="from">
-            <option value="" disabled>Select currency</option>
-
-            @for (currency of vm.currencyListData.list; track currency.shortCode) {
-              <option [value]="currency.shortCode">
-                {{ currency.shortCode }} — {{ currency.name }} ({{ currency.symbol }})
-              </option>
-            }
-          </select>
+  <div class="max-w-[115rem] m-auto pt-5">
+    @if (vm.currencyListData.loading) {
+      <form [formGroup]="form" novalidate class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="px-4 md:max-w-[30rem]">
+          <label for="from" class="mb-2 text-sm font-medium">From</label>
+          <div
+            class="w-full h-[3rem] animate-pulse rounded-2xl bg-gray-300 hover:bg-gray-400 transition duration-400 ease-in-out"
+          ></div>
         </div>
 
-        <div>
-          <label for="to">To</label>
-          <select id="to" formControlName="to">
-            <option value="" disabled>Select currency</option>
-
-            @for (currency of vm.currencyListData.list; track currency.shortCode) {
-              <option [value]="currency.shortCode">
-                {{ currency.shortCode }} — {{ currency.name }} ({{ currency.symbol }})
-              </option>
-            }
-          </select>
+        <div class="px-4 md:max-w-[30rem]">
+          <label for="to" class="mb-2 text-sm font-medium">To</label>
+          <div
+            class="w-full h-[3rem] animate-pulse rounded-2xl bg-gray-300 hover:bg-gray-400 transition duration-400 ease-in-out"
+          ></div>
         </div>
 
-        <div>
+        <div class="px-4">
           <label for="amount">Amount</label>
-          <input id="amount" type="number" formControlName="amount" placeholder="e.g. 12.34"/>
+          <div
+            class="w-[10rem] h-[3rem] animate-pulse rounded-2xl bg-gray-300 hover:bg-gray-400 transition duration-400 ease-in-out"
+          ></div>
         </div>
       </form>
+    } @else if (!vm.currencyListData.error) {
+      <form [formGroup]="form" novalidate class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="px-4 md:max-w-[30rem]">
+          <label for="from" class="mb-2 text-sm font-medium">From</label>
+          <select
+            id="from"
+            formControlName="from"
+            class="h-[3rem] block w-full bg-white border border-gray-50 rounded-md py-2 pl-3 text-gray-900 shadow-sm focus:outline-none focus:border-gray-300"
+          >
+            <option value="" disabled>Select currency</option>
 
-      <h4>Result</h4>
-
-      @if (vm.lastConversionData.loading) {
-        <div>Loading...</div>
-      } @else if (!vm.lastConversionData.error && vm.lastConversionData.value === 0) {
-        <div>Enter data to convert</div>
-      } @else if (!vm.lastConversionData.error) {
-        <div>
-          {{ vm.lastConversionData.amount }} {{ vm.lastConversionData.from }} =
-          <strong>{{ vm.lastConversionData.value }}</strong> {{ vm.lastConversionData.to }}
+            @for (currency of vm.currencyListData.list; track currency.shortCode) {
+              <option [value]="currency.shortCode">
+                {{ currency.shortCode }} — {{ currency.name }} ({{ currency.symbol }})
+              </option>
+            }
+          </select>
         </div>
-      } @else {
-        <div>An error occured, try again later</div>
-      }
+
+        <div class="px-4 md:max-w-[30rem]">
+          <label for="to" class="mb-2 text-sm font-medium">To</label>
+          <select
+            id="to"
+            formControlName="to"
+            class="h-[3rem] block w-full bg-white border border-gray-50 rounded-md py-2 pl-3 text-gray-900 shadow-sm focus:outline-none focus:border-gray-300"
+          >
+            <option value="" disabled>Select currency</option>
+
+            @for (currency of vm.currencyListData.list; track currency.shortCode) {
+              <option [value]="currency.shortCode">
+                {{ currency.shortCode }} — {{ currency.name }} ({{ currency.symbol }})
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="px-4">
+          <label for="amount">Amount</label>
+          <input
+            id="amount"
+            type="number"
+            formControlName="amount"
+            placeholder="e.g. 12.34"
+            class="h-[3rem] block w-[10rem] bg-white border border-gray-50 rounded-md py-2 pl-3 text-gray-900 shadow-sm focus:outline-none focus:border-gray-300"
+          />
+          @if (form.controls.amount.errors?.['pattern']) {
+            <small class="text-red-600">
+              Invalid format. Allowed: positive integers or decimals with dot.
+            </small>
+          }
+        </div>
+      </form>
+    } @else {
+      <div class="flex flex-col gap-3 m-auto w-fit py-10">
+        <div class="text-red-700 text-sm font-medium">
+          An error occurred while fetching currency list
+        </div>
+
+        <div>
+          <button
+            type="button"
+            class="rounded-md bg-red-600 text-white px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-red-700 cursor-pointer"
+            (click)="retryCurrencyListFetch()"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="mt-6 px-4">
+      <div class="bg-white border border-gray-100 rounded-lg shadow-sm p-4">
+        <div>
+          <h4 class="text-sm font-semibold text-gray-800">Result</h4>
+        </div>
+
+        <div class="mt-4">
+          @if (vm.lastConversionData.loading) {
+            <div class="flex items-center gap-3 text-slate-600">
+              <div
+                class="h-[3.5rem] sm:h-[2.5rem] w-[15rem] animate-pulse rounded-2xl bg-gray-300 hover:bg-gray-400 transition duration-400 ease-in-out"
+              ></div>
+            </div>
+          } @else if (!vm.lastConversionData.error && vm.lastConversionData.value === 0) {
+            <div class="text-sm text-gray-600">Enter data to convert</div>
+          } @else if (!vm.lastConversionData.error) {
+            <div
+              class="h-[3.5rem] sm:h-[2.5rem] flex flex-col sm:flex-row sm:items-baseline sm:gap-4"
+            >
+              <div class="text-gray-500 text-sm">
+                {{ vm.lastConversionData.amount }} {{ vm.lastConversionData.from }} =
+              </div>
+
+              <div class="mt-1 sm:mt-0 inline-flex items-baseline gap-3">
+                <div class="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                  {{
+                    vm.lastConversionData.value
+                      | number
+                      : '1.' +
+                      vm.lastConversionData.precision +
+                      '-' +
+                      vm.lastConversionData.precision
+                  }}
+                </div>
+                <div class="text-sm text-gray-600">
+                  {{ vm.lastConversionData.to }}
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="flex flex-col gap-3">
+              <div class="text-red-700 text-sm font-medium">An error occurred</div>
+
+              <div>
+                <button
+                  type="button"
+                  class="rounded-md bg-red-600 text-white px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-red-700 cursor-pointer"
+                  (click)="retryConvert()"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
     </div>
-  } @else {
-    <div>An error occured, try again later</div>
-  }
+  </div>
 }
