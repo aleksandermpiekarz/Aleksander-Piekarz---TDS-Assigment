@@ -17,6 +17,6 @@ export class CurrencyBeaconHttpService {
   public convert(from: string, to: string, amount: number): Observable<ConversionResult> {
     let params = new HttpParams({ fromObject: { from, to, amount } });
 
-    return this.http.get<ConversionResult>(`${this.apiUrl}/convert`, { params });
+    return this.http.get<ConversionResult>(`${this.apiUrl}/convsert`, { params });
   }
 }

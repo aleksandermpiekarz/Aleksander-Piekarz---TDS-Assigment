@@ -18,15 +18,18 @@ export class ConverterEffects {
   fetchCurrencyList$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(converterActions.fetchCurrencyList),
-      switchMap(() => this.currencyBeaconHttpService.getCurrencies()),
-      map((currencyListDtoResponse) => currencyListDtoResponse.response),
-      map((currencyListDto) =>
-        currencyListDto.map((currencyDto) => this.currencyMapper.fromDTO(currencyDto)),
+      switchMap(() =>
+        this.currencyBeaconHttpService.getCurrencies().pipe(
+          map((currencyListDtoResponse) => currencyListDtoResponse.response),
+          map((currencyListDto) =>
+            currencyListDto.map((currencyDto) => this.currencyMapper.fromDTO(currencyDto)),
+          ),
+          mapResponse({
+            next: (list) => converterActions.saveCurrencyList({ list }),
+            error: (error: HttpErrorResponse) => converterActions.fetchCurrencyFailed({ error }),
+          }),
+        ),
       ),
-      mapResponse({
-        next: (list) => converterActions.saveCurrencyList({ list }),
-        error: (error: HttpErrorResponse) => converterActions.fetchCurrencyFailed({ error }),
-      }),
     );
   });
 
@@ -34,14 +37,15 @@ export class ConverterEffects {
     return this.actions$.pipe(
       ofType(converterActions.convertCurrency),
       switchMap(({ from, to, amount, precision }) =>
-        this.currencyBeaconHttpService
-          .convert(from, to, amount)
-          .pipe(map((result) => ({ result, precision }))),
+        this.currencyBeaconHttpService.convert(from, to, amount).pipe(
+          map((result) => ({ result, precision })),
+          mapResponse({
+            next: ({ result, precision }) =>
+              converterActions.saveLastConvert({ result, precision }),
+            error: (error: HttpErrorResponse) => converterActions.convertCurrencyFailed({ error }),
+          }),
+        ),
       ),
-      mapResponse({
-        next: ({ result, precision }) => converterActions.saveLastConvert({ result, precision }),
-        error: (error: HttpErrorResponse) => converterActions.convertCurrencyFailed({ error }),
-      }),
     );
   });
 
