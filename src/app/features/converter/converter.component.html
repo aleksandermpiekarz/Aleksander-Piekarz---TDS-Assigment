@@ -40,6 +40,8 @@
 
       @if (vm.lastConversionData.loading) {
         <div>Loading...</div>
+      } @else if (!vm.lastConversionData.error && vm.lastConversionData.value === 0) {
+        <div>Enter data to convert</div>
       } @else if (!vm.lastConversionData.error) {
         <div>
           {{ vm.lastConversionData.amount }} {{ vm.lastConversionData.from }} =

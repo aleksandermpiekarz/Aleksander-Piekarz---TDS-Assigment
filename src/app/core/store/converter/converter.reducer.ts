@@ -32,7 +32,7 @@ const INITIAL_STATE: ConverterState = {
     to: '',
     amount: 0,
     value: 0,
-    loading: true,
+    loading: false,
     error: null,
   },
 };
