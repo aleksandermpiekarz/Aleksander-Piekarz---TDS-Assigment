@@ -29,4 +29,42 @@ export class ConverterEffects {
       }),
     );
   });
+
+  convertCurrency$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(converterActions.convertCurrency),
+      switchMap(({ from, to, amount }) => this.currencyBeaconHttpService.convert(from, to, amount)),
+      mapResponse({
+        next: (result) => converterActions.saveLastConvert({ result }),
+        error: (error: HttpErrorResponse) => converterActions.fetchCurrencyFailed({ error }),
+      }),
+    );
+  });
+
+  startCurrencyListLoading = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(converterActions.fetchCurrencyList),
+      map(() => converterActions.changeCurrencyListLoadingState({ loading: true })),
+    );
+  });
+
+  stopCurrencyListLoading = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(converterActions.fetchCurrencyFailed, converterActions.saveCurrencyList),
+      map(() => converterActions.changeCurrencyListLoadingState({ loading: false })),
+    );
+  });
+  startConvertLoading = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(converterActions.convertCurrency),
+      map(() => converterActions.changeConverterLoadingState({ loading: true })),
+    );
+  });
+
+  stopConvertLoading = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(converterActions.convertCurrencyFailed, converterActions.saveLastConvert),
+      map(() => converterActions.changeConverterLoadingState({ loading: false })),
+    );
+  });
 }

@@ -1,1 +1,55 @@
-<p>converter works!</p>
+@if ({currencyListData: currencyListData(), lastConversionData: lastConversionData()}; as vm) {
+  @if (vm.currencyListData.loading) {
+    <div>Loading...</div>
+  } @else if (!vm.currencyListData.error) {
+    <div class="converter">
+      <form [formGroup]="form" novalidate>
+        <div>
+          <label for="from">From</label>
+          <select id="from" formControlName="from">
+            <option value="" disabled>Select currency</option>
+
+            @for (currency of vm.currencyListData.list; track currency.shortCode) {
+              <option [value]="currency.shortCode">
+                {{ currency.shortCode }} — {{ currency.name }} ({{ currency.symbol }})
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label for="to">To</label>
+          <select id="to" formControlName="to">
+            <option value="" disabled>Select currency</option>
+
+            @for (currency of vm.currencyListData.list; track currency.shortCode) {
+              <option [value]="currency.shortCode">
+                {{ currency.shortCode }} — {{ currency.name }} ({{ currency.symbol }})
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label for="amount">Amount</label>
+          <input id="amount" type="number" formControlName="amount" placeholder="e.g. 12.34"/>
+        </div>
+      </form>
+
+      <h4>Result</h4>
+
+      @if (vm.lastConversionData.loading) {
+        <div>Loading...</div>
+      } @else if (!vm.lastConversionData.error) {
+        <div>
+          {{ vm.lastConversionData.amount }} {{ vm.lastConversionData.from }} =
+          <strong>{{ vm.lastConversionData.value }}</strong> {{ vm.lastConversionData.to }}
+        </div>
+      } @else {
+        <div>An error occured, try again later</div>
+      }
+    </div>
+  } @else {
+    <div>An error occured, try again later</div>
+  }
+}

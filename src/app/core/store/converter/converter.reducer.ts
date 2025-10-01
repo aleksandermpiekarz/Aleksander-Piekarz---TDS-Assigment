@@ -2,37 +2,36 @@ import { Currency } from '../../../types/currency';
 import { HttpErrorResponse } from '@angular/common/http';
 import { createReducer, on } from '@ngrx/store';
 import { converterActions } from './converter.actions';
+import { ConversionResult } from '../../../types/conversion-result';
 
 export const CONVERTER_STATE_KEY = 'converter';
+
+interface CurrencyListData {
+  list: Currency[];
+  loading: boolean;
+  error: HttpErrorResponse | null;
+}
+interface LastConversionData extends ConversionResult {
+  loading: boolean;
+  error: HttpErrorResponse | null;
+}
+
 export interface ConverterState {
-  currencyList: {
-    list: Currency[];
-    loading: boolean;
-    error: HttpErrorResponse | null;
-  };
-  lastConversion: {
-    from: string;
-    to: string;
-    amount: number;
-    result: number;
-    rate: number;
-    loading: boolean;
-    error: HttpErrorResponse | null;
-  };
+  currencyListData: CurrencyListData;
+  lastConversionData: LastConversionData;
 }
 
 const INITIAL_STATE: ConverterState = {
-  currencyList: {
+  currencyListData: {
     list: [],
     loading: true,
     error: null,
   },
-  lastConversion: {
+  lastConversionData: {
     from: '',
     to: '',
     amount: 0,
-    result: 0,
-    rate: 0,
+    value: 0,
     loading: true,
     error: null,
   },
@@ -44,28 +43,35 @@ export const converterReducer = createReducer(
     converterActions.fetchCurrencyFailed,
     (state, { error }): ConverterState => ({
       ...state,
-      currencyList: { ...state.currencyList, error },
+      currencyListData: { ...state.currencyListData, error },
     }),
   ),
   on(
     converterActions.saveCurrencyList,
     (state, { list }): ConverterState => ({
       ...state,
-      currencyList: { ...state.currencyList, list },
+      currencyListData: { ...state.currencyListData, list },
     }),
   ),
   on(
     converterActions.changeCurrencyListLoadingState,
     (state, { loading }): ConverterState => ({
       ...state,
-      currencyList: { ...state.currencyList, loading },
+      currencyListData: { ...state.currencyListData, loading },
     }),
   ),
   on(
     converterActions.changeConverterLoadingState,
     (state, { loading }): ConverterState => ({
       ...state,
-      lastConversion: { ...state.lastConversion, loading },
+      lastConversionData: { ...state.lastConversionData, loading },
+    }),
+  ),
+  on(
+    converterActions.saveLastConvert,
+    (state, { result }): ConverterState => ({
+      ...state,
+      lastConversionData: { ...state.lastConversionData, ...result },
     }),
   ),
 );
