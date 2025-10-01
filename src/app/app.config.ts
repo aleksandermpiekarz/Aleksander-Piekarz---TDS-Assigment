@@ -12,6 +12,7 @@ import { environment } from '../environments/environment';
 import { ApiKeyInterceptor } from './core/interceptors/api-key.interceptor';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
+import { effects, reducers } from './core/store/core.state';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     { provide: CURRENCY_BEACON_API_KEY, useValue: environment.currencyBeaconApiKey },
     { provide: HTTP_INTERCEPTORS, useClass: ApiKeyInterceptor, multi: true },
-    provideStore(),
-    provideEffects()
-],
+    provideStore(reducers),
+    provideEffects(effects),
+  ],
 };

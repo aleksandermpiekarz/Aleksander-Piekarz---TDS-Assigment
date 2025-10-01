@@ -6,13 +6,14 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class ApiKeyInterceptor implements HttpInterceptor {
   constructor(@Inject(CURRENCY_BEACON_API_KEY) private apiKey: string) {}
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log('siema');
+
+  public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${this.apiKey}`,
       },
     });
+
     return next.handle(authReq);
   }
 }

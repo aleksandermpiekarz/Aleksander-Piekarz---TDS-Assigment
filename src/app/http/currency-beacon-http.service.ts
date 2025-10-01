@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { CurrencyDto } from '../types/dtos/currency.dto';
 
 @Injectable({ providedIn: 'root' })
 export class CurrencyBeaconHttpService {
@@ -8,8 +9,8 @@ export class CurrencyBeaconHttpService {
 
   constructor(private http: HttpClient) {}
 
-  public getCurrencies(): Observable<Record<string, { code: string; name: string }>> {
-    return this.http.get<Record<string, any>>(`${this.apiUrl}/currencies`);
+  public getCurrencies(): Observable<{ response: CurrencyDto[] }> {
+    return this.http.get<{ response: CurrencyDto[] }>(`${this.apiUrl}/currencies`);
   }
 
   public convert(
